@@ -36,6 +36,15 @@ def get_match_placement(puuid, match_id):
     
     return None
 
+def get_rank(puuid):
+    url = f"https://na1.api.riotgames.com/tft/league/v1/by-puuid/{puuid}?api_key={RIOT_API_KEY}"
+    headers = {"X-Riot-Token": RIOT_API_KEY}
+    r = requests.get(url, headers=headers)
+    r.raise_for_status()
+    r = r.json()[0]
+    rank_str = f"{r["tier"]} {r["rank"]} {r["leaguePoints"]} LP"
+    return rank_str
+
 def get_last_match_id():
     if os.path.exists(PREV_FILE):
         with open(PREV_FILE, "r") as f:
@@ -67,6 +76,7 @@ def main():
         matches = get_recent_matches(puuid, count=1)
         placement, game_length = get_match_placement(puuid, matches[0])
         game_length = int(game_length/60)
+        rank = get_rank(puuid)
         if not matches:
             return
 
@@ -75,7 +85,7 @@ def main():
 
         if latest != prev:
             placement_str = placement_to_string(placement)
-            send_to_discord(f"{NAME} just placed {placement_str} in a {game_length} minute game!")
+            send_to_discord(f"{NAME} just placed {placement_str} in a {game_length} minute game! Rank: {rank}!!")
             save_last_match_id(latest)
 
     except requests.exceptions.HTTPError as e:

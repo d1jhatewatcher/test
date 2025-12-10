@@ -1,8 +1,8 @@
-name: Riot Match Checker
+name: TFT Match Checker
 
 on:
   schedule:
-    - cron: "* * * * *"   # Every minute
+    - cron: "* * * * *"  # runs every minute
   workflow_dispatch:
 
 jobs:
@@ -26,12 +26,12 @@ jobs:
         env:
           RIOT_API_KEY: ${{ secrets.RIOT_API_KEY }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        run: python riot_bot.py
+        run: python bot.py
 
-      - name: Commit state if changed
+      - name: Commit prev.txt if changed
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add last_match.txt
+          git add prev.txt
           git diff --cached --quiet || git commit -m "Update last match"
           git push

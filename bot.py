@@ -85,7 +85,7 @@ def main():
 
         if latest != prev:
             placement_str = placement_to_string(placement)
-            send_to_discord(f"{NAME} just placed {placement_str} in a {game_length} minute game! Rank: {rank}!!")
+            send_to_discord(f"{NAME} placed {placement_str} in a {game_length} minute game! Rank: {rank}!!")
             save_last_match_id(latest)
 
     except requests.exceptions.HTTPError as e:

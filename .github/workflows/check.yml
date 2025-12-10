@@ -2,7 +2,7 @@ name: TFT Match Checker
 
 on:
   schedule:
-    - cron: "/5 * * * *"  # runs every minute
+    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 jobs:

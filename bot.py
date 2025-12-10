@@ -42,7 +42,7 @@ def get_rank(puuid):
     r = requests.get(url, headers=headers)
     r.raise_for_status()
     r = r.json()[0]
-    rank_str = f"{r["tier"]} {r["rank"]} {r["leaguePoints"]} LP"
+    rank_str = f"{r['tier']} {r['rank']} {r['leaguePoints']} LP"
     return rank_str
 
 def get_last_match_id():

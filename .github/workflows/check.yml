@@ -26,6 +26,8 @@ jobs:
         env:
           RIOT_API_KEY: ${{ secrets.RIOT_API_KEY }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          RIOT_ID: ${{ secrets.RIOT_ID }}
+          NAME: ${{ secrets.NAME }}
         run: python bot.py
 
       - name: Commit prev.txt if changed

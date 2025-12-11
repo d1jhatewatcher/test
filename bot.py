@@ -55,7 +55,7 @@ def save_last_match_id(match_id):
         f.write(match_id)
 
 def send_to_discord(message):
-    requests.post(DISCORD_WEBHOOK_URL, json={"content": message)
+    requests.post(DISCORD_WEBHOOK_URL, json={"content": message})
 
 def placement_to_string(p):
     if p == 1:

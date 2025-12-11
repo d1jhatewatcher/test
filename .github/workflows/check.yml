@@ -26,8 +26,7 @@ jobs:
         env:
           RIOT_API_KEY: ${{ secrets.RIOT_API_KEY }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          RIOT_TAGLINE: ${{ secrets.RIOT_TAGLINE }}
-          RIOT_NAME: ${{ secrets.RIOT_NAME }}
+          RIOT_ID: ${{ secrets.RIOT_ID }}
           NAME: ${{ secrets.NAME }}
         run: python bot.py
 
@@ -37,4 +36,4 @@ jobs:
           git config user.email "actions@github.com"
           git add prev.txt
           git diff --cached --quiet || git commit -m "Update last match"
-          git push origin HEAD:main
+          git push origin main --force

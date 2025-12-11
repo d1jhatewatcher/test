@@ -23,17 +23,17 @@ def get_recent_matches(puuid, count=1):
     r.raise_for_status()
     return r.json()
 
-def get_match_placement(puuid, match_id):
+def get_match_data(match_id):
     url = f"https://americas.api.riotgames.com/tft/match/v1/matches/{match_id}"
     headers = {"X-Riot-Token": RIOT_API_KEY}
     r = requests.get(url, headers=headers)
     r.raise_for_status()
-    match_data = r.json()
-    
-    for participant in match_data["info"]["participants"]:
-        if participant["puuid"] == puuid:
-            return participant["placement"], participant["time_eliminated"]
-    
+    return r.json()
+
+def extract_player_data(match_json, puuid):
+    for p in match_json["info"]["participants"]:
+        if p["puuid"] == puuid:
+            return p
     return None
 
 def get_rank(puuid):
@@ -42,8 +42,7 @@ def get_rank(puuid):
     r = requests.get(url, headers=headers)
     r.raise_for_status()
     r = r.json()[0]
-    rank_str = f"{r['tier']} {r['rank']} {r['leaguePoints']} LP"
-    return rank_str
+    return f"{r['tier'].title()} {r['rank']} {r['leaguePoints']} LP"
 
 def get_last_match_id():
     if os.path.exists(PREV_FILE):
@@ -58,40 +57,66 @@ def save_last_match_id(match_id):
 def send_to_discord(message):
     requests.post(DISCORD_WEBHOOK_URL, json={"content": message})
 
-def placement_to_string(placement):
-    if placement == 1:
-        return "1st (SO LUCKY!!)"
-    elif placement == 2:
+def placement_to_string(p):
+    if p == 1:
+        return "1st"
+    elif p == 2:
         return "2nd"
-    elif placement == 3:
+    elif p == 3:
         return "3rd"
-    elif placement == 4:
-        return "4th"
     else:
-        return f"{placement}th (LMAO!!!)"
+        return f"{p}th"
+
+def format_traits(traits):
+    active = [t for t in traits if t["tier_current"] > 0]
+    return ", ".join([f"{t['name'].replace("TFT16_", "")} {t['tier_current']}" for t in active])
+
+def format_units(units):
+    lines = []
+    for u in units:
+        stars = "★" * u["tier"] 
+        name = u["character_id"].replace("TFT16_", "").replace("TFT9_", "").replace("TFT", "").replace("16_", "")
+        lines.append(f"{stars} {name}")
+    return ", ".join(lines)
 
 def main():
     try:
         puuid = get_puuid()
         matches = get_recent_matches(puuid, count=1)
-        placement, game_length = get_match_placement(puuid, matches[0])
-        game_length = int(game_length/60)
-        rank = get_rank(puuid)
         if not matches:
             return
-
+        
         latest = matches[0]
         prev = get_last_match_id()
 
-        if latest != prev:
-            placement_str = placement_to_string(placement)
-            send_to_discord(f"{NAME} placed {placement_str} in a {game_length} minute game! Rank: {rank}!!")
-            save_last_match_id(latest)
+        if latest == prev:
+            return 
 
-    except requests.exceptions.HTTPError as e:
-        print(f"HTTP error: {e}")
+        match_json = get_match_data(latest)
+        player = extract_player_data(match_json, puuid)
+
+        placement = player["placement"]
+        duration = int(player["time_eliminated"] / 60)
+        rank = get_rank(puuid)
+
+        traits = format_traits(player["traits"])
+        units = format_units(player["units"])
+
+        placement_str = placement_to_string(placement)
+
+        msg = (
+            f"{NAME} placed {placement_str}!\n"
+            f"Rank: {rank}\n"
+            f"Duration: {duration} mins\n"
+            f"Units: {units}\n"
+            f"Traits: {traits}"
+        )
+
+        send_to_discord(msg)
+        save_last_match_id(latest)
+
     except Exception as e:
-        print(f"Error: {e}")
+        print("Error:", e)
 
 if __name__ == "__main__":
     main()

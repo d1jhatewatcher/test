@@ -54,8 +54,8 @@ def save_last_match_id(match_id):
     with open(PREV_FILE, "w") as f:
         f.write(match_id)
 
-def send_to_discord(message, gif_url):
-    requests.post(DISCORD_WEBHOOK_URL, json={"content": message, "embeds": [{"image": {"url": gif_url}}]})
+def send_to_discord(message):
+    requests.post(DISCORD_WEBHOOK_URL, json={"content": message)
 
 def placement_to_string(p):
     if p == 1:
@@ -104,10 +104,6 @@ def main():
 
         placement_str = placement_to_string(placement)
 
-        gif_url = ""
-        if placement_str == 8:
-            gif_url = "https://tenor.com/view/lol-gif-11059538064120696238"
-            
         msg = (
             f"{NAME} placed {placement_str}!\n"
             f"Rank: {rank}\n"
@@ -116,7 +112,7 @@ def main():
             f"Traits: {traits}"
         )
 
-        send_to_discord(msg, gif_url)
+        send_to_discord(msg)
         save_last_match_id(latest)
 
     except Exception as e:

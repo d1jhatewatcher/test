@@ -69,17 +69,19 @@ def placement_to_string(p):
 
 def format_traits(traits):
     active = [t for t in traits if t["tier_current"] > 0]
+
     return ", ".join([
-        f"{t['name']
-            .replace('TFT17_', '')
-            .replace('TFT16_', '')} {t['tier_current']}"
+        f"{t['name'].replace('TFT17_', '').replace('TFT16_', '')} {t['tier_current']}"
         for t in active
     ])
 
+
 def format_units(units):
     lines = []
+
     for u in units:
         stars = "★" * u["tier"]
+
         name = (
             u["character_id"]
             .replace("TFT17_", "")
@@ -89,7 +91,9 @@ def format_units(units):
             .replace("TFT", "")
             .replace("16_", "")
         )
+
         lines.append(f"{stars} {name}")
+
     return ", ".join(lines)
 
 def main():
